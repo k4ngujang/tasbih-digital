@@ -1,89 +1,1061 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keuangan Kiosnett</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body, html {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
-        }
-        
-        .container {
-            height: 100vh;
-            width: 100vw;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .header {
-            color: black;
-            padding: 15px 20px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .header h1 {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        .iframe-container {
-            flex: 1;
-            width: 100%;
-            position: relative;
-        }
-        
-        iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-        
-        .loading p {
-            margin-top: 10px;
-            color: #666;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tasbih Digital</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+      :root {
+          --primary: #0E6251;
+          --primary-light: #117864;
+          --primary-dark: #0B5345;
+          --primary-bg: #E8F6F3;
+          --primary-bg-light: #D0ECE7;
+          --accent: #148F77;
+          --text-dark: #1E272E;
+          --text-light: #576574;
+          --white: #ffffff;
+          --error: #e74c3c;
+          --success: #27ae60;
+          --warning: #f39c12;
+      }
+      
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: 'Inter', sans-serif;
+          -webkit-tap-highlight-color: transparent;
+      }
+      
+      body {
+          background-color: #f5f5f5;
+          min-height: 100vh;
+          color: var(--text-dark);
+          overflow-x: hidden;
+          display: flex;
+          flex-direction: column;
+      }
+      
+      .app-container {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+      }
+      
+      .header {
+          padding: 8px;
+          text-align: center;
+          position: relative;
+      }
+      
+      .header h1 {
+          font-size: 20px;
+          font-weight: 600;
+      }
+      
+      .main-content {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+          max-width: 500px;
+          margin: 0 auto;
+          width: 100%;
+      }
+      
+      .counter-card {
+          background-color: white;
+          border-radius: 16px;
+          padding: 25px 20px;
+          margin-bottom: 20px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+          text-align: center;
+          position: relative;
+      }
+
+      
+      .counter-container {
+          position: relative;
+          width: 250px;
+          height: 250px;
+          margin: 20px auto 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+      }
+      
+      .counter-circle {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          border: 3px solid var(--primary-bg);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
+      
+      .counter-circle-inner {
+          position: absolute;
+          width: 85%;
+          height: 85%;
+          border-radius: 50%;
+          border: 2px dashed var(--primary-light);
+          animation: rotate 60s linear infinite;
+      }
+      
+      .counter-circle-outer {
+          position: absolute;
+          width: 110%;
+          height: 110%;
+          border-radius: 50%;
+          border: 1px solid rgba(14, 98, 81, 0.1);
+      }
+      
+      .counter-bg {
+          position: absolute;
+          width: 75%;
+          height: 75%;
+          border-radius: 50%;
+          background-color: var(--primary-bg);
+          z-index: 0;
+      }
+      
+      .counter-value {
+          font-size: 90px;
+          font-weight: 700;
+          color: var(--primary);
+          position: relative;
+          z-index: 1;
+          transition: all 0.2s ease;
+          cursor: pointer;
+      }
+      
+      .counter-value.pulse {
+          animation: pulse 0.3s ease;
+      }
+      
+      .counter-value.target-reached {
+          animation: targetReached 1s ease;
+          color: var(--success);
+      }
+      
+      .hint-container {
+          position: relative;
+          text-align: center;
+          margin-bottom: 15px;
+          animation: fadeIn 0.5s ease-out;
+      }
+      
+      .hint-text {
+          font-size: 14px;
+          color: var(--text-light);
+          font-weight: 500;
+          margin-bottom: 5px;
+      }
+      
+      .hint-arrow {
+          color: var(--primary);
+          font-size: 20px;
+      }
+      
+      @keyframes pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+          100% { transform: scale(1); }
+      }
+      
+      @keyframes targetReached {
+          0% { transform: scale(1); color: var(--primary); }
+          25% { transform: scale(1.1); color: var(--success); }
+          50% { transform: scale(1); color: var(--success); }
+          75% { transform: scale(1.05); color: var(--success); }
+          100% { transform: scale(1); color: var(--primary); }
+      }
+      
+      @keyframes rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+      }
+      
+      .action-buttons {
+          display: flex;
+          gap: 15px;
+          margin-bottom: 10px;
+          justify-content: center;
+          flex-wrap: wrap;
+      }
+      
+      .btn {
+          border: none;
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+      }
+      
+      .btn-primary {
+          background-color: var(--primary);
+          color: white;
+          width: 90px;
+      }
+      
+      .btn-primary:active {
+          background-color: var(--primary-dark);
+          transform: translateY(1px);
+      }
+      
+      .btn-outline {
+          background-color: transparent;
+          color: var(--primary);
+          border: 1px solid var(--primary);
+          width: 90px;
+      }
+      
+      .btn-outline:active {
+          background-color: rgba(14, 98, 81, 0.1);
+          transform: translateY(1px);
+      }
+      
+      .btn-warning {
+          background-color: var(--warning);
+          color: white;
+          width: 90px;
+      }
+      
+      .btn-warning:active {
+          background-color: #d68910;
+          transform: translateY(1px);
+      }
+
+      .btn-sm {
+          padding: 6px 10px;
+          font-size: 12px;
+          width: auto;
+      }
+      
+      .btn-icon {
+          width: 16px;
+          height: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+      }
+      
+      .target-section {
+          background-color: white;
+          border-radius: 16px;
+          padding: 25px 20px;
+          margin-bottom: 20px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      }
+      
+      .section-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--text-dark);
+          margin-bottom: 16px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+      }
+      
+      .target-input-group {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 16px;
+      }
+      
+      .input-field {
+          flex: 1;
+          padding: 12px;
+          border: 1px solid #e0e0e0;
+          border-radius: 10px;
+          font-size: 14px;
+          transition: all 0.2s ease;
+      }
+      
+      .input-field:focus {
+          border-color: var(--primary);
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(14, 98, 81, 0.1);
+      }
+      
+      .progress-container {
+          display: none;
+          margin-top: 16px;
+      }
+      
+      .progress-info {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 8px;
+          font-size: 14px;
+      }
+      
+      .progress-bar {
+          height: 8px;
+          background-color: #f1f1f1;
+          border-radius: 4px;
+          overflow: hidden;
+          margin-bottom: 12px;
+      }
+      
+      .progress-fill {
+          height: 100%;
+          background-color: var(--primary);
+          border-radius: 4px;
+          width: 0%;
+          transition: width 0.3s ease;
+      }
+      
+      .progress-fill.complete {
+          background-color: var(--success);
+      }
+
+      .edit-target-btn {
+          display: flex;
+          justify-content: center;
+          margin-top: 8px;
+      }
+      
+      /* Switch Toggle Styles */
+      .switch-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 12px;
+      }
+
+      .switch {
+          position: relative;
+          display: inline-block;
+          width: 46px;
+          height: 24px;
+      }
+
+      .switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+      }
+
+      .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          transition: .3s;
+          border-radius: 24px;
+      }
+
+      .slider:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .3s;
+          border-radius: 50%;
+      }
+
+      input:checked + .slider {
+          background-color: var(--primary);
+      }
+
+      input:focus + .slider {
+          box-shadow: 0 0 1px var(--primary);
+      }
+
+      input:checked + .slider:before {
+          transform: translateX(22px);
+      }
+
+      .settings-section {
+          background-color: white;
+          border-radius: 16px;
+          padding: 25px 20px;
+          margin-bottom: 20px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      }
+
+      .switch-label {
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--text-dark);
+      }
+      
+      .footer {
+          text-align: center;
+          padding: 16px;
+          font-size: 12px;
+          color: var(--text-light);
+          background-color: white;
+          border-top: 1px solid #f1f1f1;
+      }
+      
+      /* Custom Alert Styles */
+      .custom-alert-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+      }
+      
+      .custom-alert-overlay.active {
+          opacity: 1;
+          visibility: visible;
+      }
+      
+      .custom-alert {
+          background-color: white;
+          border-radius: 16px;
+          padding: 25px;
+          width: 90%;
+          max-width: 320px;
+          text-align: center;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+          transform: translateY(20px);
+          transition: all 0.3s ease;
+      }
+      
+      .custom-alert-overlay.active .custom-alert {
+          transform: translateY(0);
+      }
+      
+      .custom-alert-icon {
+          font-size: 40px;
+          margin-bottom: 15px;
+          display: inline-block;
+      }
+      
+      .custom-alert-icon.success {
+          color: var(--success);
+      }
+      
+      .custom-alert-icon.warning {
+          color: var(--warning);
+      }
+      
+      .custom-alert-icon.error {
+          color: var(--error);
+      }
+      
+      .custom-alert-title {
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 10px;
+          color: var(--text-dark);
+      }
+      
+      .custom-alert-message {
+          font-size: 14px;
+          color: var(--text-light);
+          margin-bottom: 20px;
+      }
+      
+      .custom-alert-buttons {
+          display: flex;
+          gap: 10px;
+          justify-content: center;
+      }
+      
+      .custom-alert-btn {
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          border: none;
+          transition: all 0.2s ease;
+      }
+      
+      .custom-alert-btn.primary {
+          background-color: var(--primary);
+          color: white;
+      }
+      
+      .custom-alert-btn.secondary {
+          background-color: #f1f1f1;
+          color: var(--text-dark);
+      }
+      
+      .custom-alert-btn:active {
+          transform: translateY(1px);
+      }
+
+      .custom-alert-input {
+          width: 100%;
+          padding: 12px;
+          border: 1px solid #e0e0e0;
+          border-radius: 10px;
+          font-size: 14px;
+          margin-bottom: 20px;
+          text-align: center;
+      }
+      
+      .custom-alert-input:focus {
+          border-color: var(--primary);
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(14, 98, 81, 0.1);
+      }
+      
+      /* Responsive Styles */
+      @media (min-width: 480px) {
+          .header h1 {
+              font-size: 22px;
+          }
+          
+          .counter-card, .target-section {
+              padding: 30px 25px;
+          }
+          
+          .counter-container {
+              width: 280px;
+              height: 280px;
+          }
+          
+          .counter-value {
+              font-size: 100px;
+          }
+          
+          .btn {
+              padding: 10px 15px;
+              font-size: 14px;
+              width: 100px;
+          }
+      }
+      
+      @media (min-width: 768px) {
+          .main-content {
+              padding: 30px;
+          }
+          
+          .counter-card, .target-section {
+              padding: 35px 30px;
+              border-radius: 20px;
+          }
+          
+          .counter-container {
+              width: 320px;
+              height: 320px;
+              margin: 25px auto 35px;
+          }
+          
+          .counter-value {
+              font-size: 120px;
+          }
+      }
+      
+      /* Animasi */
+      @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+      
+      .counter-card, .target-section {
+          animation: fadeIn 0.5s ease-out;
+      }
+
+      body.popup-active {
+          overflow: hidden;
+      }
+      
+      /* Status Getaran */
+      
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Keuangan Kiosnett</h1>
-        </div>
-        <div class="iframe-container">
-            <div class="loading" id="loading">
-                <div>Memuat...</div>
-                <p>Mohon tunggu sebentar</p>
-            </div>
-            <iframe 
-                src="https://kzmkc8totgc7jdx4jsxj.lite.vusercontent.net/" 
-                title="Keuangan Kiosnett" 
-                id="mainFrame"
-                allowfullscreen
-                onload="document.getElementById('loading').style.display='none';"
-            ></iframe>
-        </div>
-    </div>
+  <div class="app-container">
+      <header class="header">
+      </header>
+      
+      <main class="main-content">
+          <div class="counter-card">
+              
+              <div class="hint-container">
+                  <div class="hint-text">Ketuk lingkaran untuk menambah hitungan</div>
+                  <div class="hint-arrow"><i class="fas fa-arrow-down"></i></div>
+              </div>
+              
+              <div class="counter-container">
+                  <div class="counter-circle-outer"></div>
+                  <div class="counter-circle"></div>
+                  <div class="counter-circle-inner"></div>
+                  <div class="counter-bg"></div>
+                  <div class="counter-value" id="counter">0</div>
+              </div>
+              
+              <div class="action-buttons">
+                  <button class="btn btn-warning" id="decrementButton">
+                      <span class="btn-icon"><i class="fas fa-minus"></i></span>
+                      <span>Kurangi</span>
+                  </button>
+                  
+                  <button class="btn btn-outline" id="resetButton">
+                      <span class="btn-icon"><i class="fas fa-redo-alt"></i></span>
+                      <span>Reset</span>
+                  </button>
+              </div>
+          </div>
+          
+          <div class="target-section">
+              <div class="section-title">
+                  <i class="fas fa-flag"></i>
+                  <span>Target Dzikir</span>
+              </div>
+              
+              <div class="target-input-group">
+                  <input type="number" class="input-field" id="targetInput" placeholder="Masukkan target" min="1" inputmode="numeric" pattern="[0-9]*">
+                  <button class="btn btn-primary" id="setTargetButton">Set</button>
+              </div>
+              
+              <div class="progress-container" id="progressContainer">
+                  <div class="progress-info">
+                      <span id="progressText">0/0</span>
+                      <span id="progressPercentage">0%</span>
+                  </div>
+                  <div class="progress-bar">
+                      <div class="progress-fill" id="progressBar"></div>
+                  </div>
+                  <div class="edit-target-btn">
+                      <button class="btn btn-outline btn-sm" id="editTargetButton">
+                          <span class="btn-icon"><i class="fas fa-edit"></i></span>
+                          <span>Ubah Target</span>
+                      </button>
+                  </div>
+              </div>
+          </div>
+      </main>
+  </div>
+  
+  <!-- Custom Alert Container -->
+  <div class="custom-alert-overlay" id="customAlertOverlay">
+      <div class="custom-alert">
+          <div class="custom-alert-icon success" id="customAlertIcon">
+              <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="custom-alert-title" id="customAlertTitle">Sukses</div>
+          <div class="custom-alert-message" id="customAlertMessage">Operasi berhasil dilakukan.</div>
+          <div id="customAlertInputContainer" style="display: none;">
+              <input type="number" class="custom-alert-input" id="customAlertInput" min="1" inputmode="numeric">
+          </div>
+          <div class="custom-alert-buttons">
+              <button class="custom-alert-btn primary" id="customAlertConfirmBtn">OK</button>
+              <button class="custom-alert-btn secondary" id="customAlertCancelBtn" style="display: none;">Batal</button>
+          </div>
+      </div>
+  </div>
+  
+  <!-- Status Getaran -->
+
+  <script>
+      // Inisialisasi variabel
+      let count = 0;
+      let target = 0;
+      let targetReachedFlag = false;
+      
+      // Ambil elemen DOM
+      const counterDisplay = document.getElementById('counter');
+      const decrementButton = document.getElementById('decrementButton');
+      const resetButton = document.getElementById('resetButton');
+      const targetInput = document.getElementById('targetInput');
+      const setTargetButton = document.getElementById('setTargetButton');
+      const editTargetButton = document.getElementById('editTargetButton');
+      const progressContainer = document.getElementById('progressContainer');
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      const progressPercentage = document.getElementById('progressPercentage');
+      
+      
+      // Custom Alert Elements
+      const customAlertOverlay = document.getElementById('customAlertOverlay');
+      const customAlertIcon = document.getElementById('customAlertIcon');
+      const customAlertTitle = document.getElementById('customAlertTitle');
+      const customAlertMessage = document.getElementById('customAlertMessage');
+      const customAlertInputContainer = document.getElementById('customAlertInputContainer');
+      const customAlertInput = document.getElementById('customAlertInput');
+      const customAlertConfirmBtn = document.getElementById('customAlertConfirmBtn');
+      const customAlertCancelBtn = document.getElementById('customAlertCancelBtn');
+      
+      // Fungsi untuk menampilkan custom alert
+      function showCustomAlert(options) {
+          // Set default options
+          const defaults = {
+              type: 'success', // success, warning, error
+              title: 'Sukses',
+              message: 'Operasi berhasil dilakukan.',
+              confirmText: 'OK',
+              showCancel: false,
+              cancelText: 'Batal',
+              showInput: false,
+              inputValue: '',
+              inputPlaceholder: '',
+              onConfirm: () => {},
+              onCancel: () => {}
+          };
+          
+          // Merge options
+          const settings = {...defaults, ...options};
+          
+          // Set icon
+          customAlertIcon.className = 'custom-alert-icon ' + settings.type;
+          let iconClass = 'fa-check-circle';
+          if (settings.type === 'warning') iconClass = 'fa-exclamation-triangle';
+          if (settings.type === 'error') iconClass = 'fa-times-circle';
+          customAlertIcon.innerHTML = `<i class="fas ${iconClass}"></i>`;
+          
+          // Set title and message
+          customAlertTitle.textContent = settings.title;
+          customAlertMessage.textContent = settings.message;
+          
+          // Set input if needed
+          if (settings.showInput) {
+              customAlertInputContainer.style.display = 'block';
+              customAlertInput.value = settings.inputValue;
+              customAlertInput.placeholder = settings.inputPlaceholder;
+              // Focus input after animation
+              setTimeout(() => {
+                  customAlertInput.focus();
+              }, 300);
+          } else {
+              customAlertInputContainer.style.display = 'none';
+          }
+          
+          // Set buttons
+          customAlertConfirmBtn.textContent = settings.confirmText;
+          customAlertCancelBtn.textContent = settings.cancelText;
+          customAlertCancelBtn.style.display = settings.showCancel ? 'block' : 'none';
+          
+          // Set event handlers
+          customAlertConfirmBtn.onclick = () => {
+              const inputValue = settings.showInput ? customAlertInput.value : null;
+              hideCustomAlert();
+              settings.onConfirm(inputValue);
+          };
+          
+          customAlertCancelBtn.onclick = () => {
+              hideCustomAlert();
+              settings.onCancel();
+          };
+          
+          // Handle Enter key for input
+          if (settings.showInput) {
+              customAlertInput.onkeydown = (e) => {
+                  if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const inputValue = customAlertInput.value;
+                      hideCustomAlert();
+                      settings.onConfirm(inputValue);
+                  }
+              };
+          }
+          
+          // Show alert
+          document.body.classList.add('popup-active');
+          customAlertOverlay.classList.add('active');
+      }
+      
+      // Fungsi untuk menyembunyikan custom alert
+      function hideCustomAlert() {
+          document.body.classList.remove('popup-active');
+          customAlertOverlay.classList.remove('active');
+      }
+      
+      
+      
+      // Fungsi untuk getaran normal
+      function normalVibration() {
+          // Disabled - not functioning in native webview
+          return;
+      }
+      
+      // Fungsi untuk getaran khusus saat target tercapai
+      function targetReachedVibration() {
+          // Disabled - not functioning in native webview
+          return;
+      }
+      
+      
+      
+      // Fungsi untuk menambah hitungan
+      function incrementCount() {
+          // Cek apakah sudah mencapai target
+          if (target > 0 && count >= target) {
+              showCustomAlert({
+                  type: 'warning',
+                  title: 'Target Tercapai',
+                  message: 'Anda telah mencapai target dzikir. Reset atau atur target baru untuk melanjutkan.',
+                  confirmText: 'OK'
+              });
+              return;
+          }
+          
+          count++;
+          counterDisplay.textContent = count;
+          
+          // Reset flag jika count berubah
+          if (targetReachedFlag && count !== target) {
+              targetReachedFlag = false;
+              progressBar.classList.remove('complete');
+          }
+          
+          // Tambahkan animasi pulse
+          counterDisplay.classList.add('pulse');
+          setTimeout(() => {
+              counterDisplay.classList.remove('pulse');
+          }, 300);
+          
+          // Getaran normal untuk penambahan biasa
+          normalVibration();
+          
+          updateProgress();
+      }
+      
+      // Fungsi untuk mengurangi hitungan
+      function decrementCount() {
+          if (count > 0) {
+              count--;
+              counterDisplay.textContent = count;
+              
+              // Reset flag jika count berubah
+              if (targetReachedFlag && count !== target) {
+                  targetReachedFlag = false;
+                  progressBar.classList.remove('complete');
+              }
+              
+              // Getaran pendek untuk pengurangan
+              normalVibration();
+              
+              updateProgress();
+          } else {
+              // Tampilkan pesan jika hitungan sudah 0
+              showCustomAlert({
+                  type: 'warning',
+                  title: 'Tidak Dapat Dikurangi',
+                  message: 'Hitungan sudah mencapai 0.',
+                  confirmText: 'OK'
+              });
+          }
+      }
+      
+      // Fungsi untuk reset hitungan
+      function resetCount() {
+          // Konfirmasi reset dengan custom alert
+          if (count > 0 || target > 0) {
+              showCustomAlert({
+                  type: 'warning',
+                  title: 'Konfirmasi Reset',
+                  message: 'Apakah Anda yakin ingin mereset hitungan dan target?',
+                  confirmText: 'Ya, Reset',
+                  showCancel: true,
+                  cancelText: 'Batal',
+                  onConfirm: () => {
+                      count = 0;
+                      target = 0; // Reset target juga
+                      counterDisplay.textContent = count;
+                      targetReachedFlag = false;
+                      progressBar.classList.remove('complete');
+                      progressContainer.style.display = 'none'; // Sembunyikan progress container
+                      updateProgress();
+                  }
+              });
+          } else {
+              count = 0;
+              target = 0; // Reset target juga
+              counterDisplay.textContent = count;
+              progressContainer.style.display = 'none'; // Sembunyikan progress container
+              updateProgress();
+          }
+      }
+      
+      // Fungsi untuk mengatur target
+      function setTarget() {
+          const inputValue = parseInt(targetInput.value);
+          if (inputValue && inputValue > 0) {
+              target = inputValue;
+              progressContainer.style.display = 'block';
+              targetReachedFlag = false;
+              progressBar.classList.remove('complete');
+              updateProgress();
+              targetInput.value = '';
+              // Tutup keyboard di mobile
+              targetInput.blur();
+              
+              // Tampilkan custom alert
+              showCustomAlert({
+                  type: 'success',
+                  title: 'Target Berhasil Diatur',
+                  message: `Target dzikir telah diatur ke ${target} kali.`,
+                  confirmText: 'OK'
+              });
+          } else {
+              showCustomAlert({
+                  type: 'error',
+                  title: 'Input Tidak Valid',
+                  message: 'Masukkan angka yang valid untuk target.',
+                  confirmText: 'OK'
+              });
+          }
+      }
+
+      // Fungsi untuk menampilkan dialog ubah target
+      function showEditTargetDialog() {
+          showCustomAlert({
+              type: 'warning',
+              title: 'Ubah Target',
+              message: 'Masukkan target dzikir baru:',
+              showInput: true,
+              inputValue: '',
+              inputPlaceholder: 'Target baru',
+              confirmText: 'Simpan',
+              showCancel: true,
+              cancelText: 'Batal',
+              onConfirm: (inputValue) => {
+                  const newTarget = parseInt(inputValue);
+                  if (newTarget && newTarget > 0) {
+                      target = newTarget;
+                      targetReachedFlag = count >= target;
+                      if (targetReachedFlag) {
+                          progressBar.classList.add('complete');
+                      } else {
+                          progressBar.classList.remove('complete');
+                      }
+                      updateProgress();
+                      
+                      showCustomAlert({
+                          type: 'success',
+                          title: 'Target Diperbarui',
+                          message: `Target dzikir telah diubah menjadi ${target} kali.`,
+                          confirmText: 'OK'
+                      });
+                  } else {
+                      showCustomAlert({
+                          type: 'error',
+                          title: 'Input Tidak Valid',
+                          message: 'Masukkan angka yang valid untuk target.',
+                          confirmText: 'OK'
+                      });
+                  }
+              }
+          });
+      }
+      
+      // Fungsi untuk memperbarui progress
+      function updateProgress() {
+          if (target > 0) {
+              const percentage = Math.min((count / target) * 100, 100);
+              progressBar.style.width = `${percentage}%`;
+              progressText.textContent = `${count}/${target}`;
+              progressPercentage.textContent = `${Math.round(percentage)}%`;
+              
+              // Cek apakah target tercapai
+              if (count === target && !targetReachedFlag) {
+                  // Set flag agar tidak berulang
+                  targetReachedFlag = true;
+                  
+                  // Ubah warna progress bar
+                  progressBar.classList.add('complete');
+                  
+                  // Tambahkan animasi pada counter
+                  counterDisplay.classList.add('target-reached');
+                  setTimeout(() => {
+                      counterDisplay.classList.remove('target-reached');
+                  }, 1000);
+                  
+                  // Getaran khusus saat target tercapai
+                  targetReachedVibration();
+                  
+                  // Tampilkan alert setelah getaran dan animasi
+                  setTimeout(() => {
+                      showCustomAlert({
+                          type: 'success',
+                          title: 'Target Tercapai!',
+                          message: 'Selamat! Anda telah mencapai target dzikir.',
+                          confirmText: 'Alhamdulillah'
+                      });
+                  }, 800);
+              }
+          }
+      }
+      
+      // Event listeners
+      decrementButton.addEventListener('click', decrementCount);
+      resetButton.addEventListener('click', resetCount);
+      setTargetButton.addEventListener('click', setTarget);
+      editTargetButton.addEventListener('click', showEditTargetDialog);
+      
+
+      // Event listener untuk klik pada angka counter dan area lingkaran
+      document.querySelector('.counter-container').addEventListener('click', incrementCount);
+      
+      // Tambahkan event listener untuk keyboard (spasi)
+      document.addEventListener('keydown', function(event) {
+          if (event.code === 'Space') {
+              event.preventDefault(); // Mencegah scroll halaman
+              incrementCount();
+          }
+      });
+      
+      // Event listener untuk input target dengan tombol Enter
+      targetInput.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter') {
+              event.preventDefault();
+              setTarget();
+          }
+      });
+      
+      // Cek apakah ada data tersimpan di localStorage
+      window.addEventListener('load', function() {
+          const savedCount = localStorage.getItem('tasbihCount');
+          const savedTarget = localStorage.getItem('tasbihTarget');
+          
+          if (savedCount) {
+              count = parseInt(savedCount);
+              counterDisplay.textContent = count;
+          } else {
+              // Only set to 0 if there's no saved count
+              count = 0;
+              counterDisplay.textContent = count;
+          }
+          
+          if (savedTarget) {
+              target = parseInt(savedTarget);
+              progressContainer.style.display = 'block';
+              updateProgress();
+          }
+      });
+      
+      // Simpan data ke localStorage saat halaman ditutup
+      window.addEventListener('beforeunload', function() {
+          localStorage.setItem('tasbihCount', count);
+          localStorage.setItem('tasbihTarget', target);
+      });
+  </script>
 </body>
 </html>
